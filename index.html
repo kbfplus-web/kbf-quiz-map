@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>KBF: PLUS – Kulturalna Mapa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fafafa;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(90deg, #F37021, #F58C4C);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    header img {
+      height: 40px;
+    }
+    header h1 {
+      color: white;
+      font-size: 22px;
+      margin: 0;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    #map {
+      height: 75vh;
+      border-bottom: 4px solid #F37021;
+    }
+    .quiz-popup {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .quiz-popup input {
+      margin-top: 8px;
+      padding: 8px;
+      width: 95%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .quiz-popup button {
+      margin-top: 8px;
+      padding: 8px 14px;
+      background: #F37021;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .quiz-popup button:hover {
+      background: #d85f18;
+    }
+    #badge {
+      display: none;
+      text-align: center;
+      margin: 25px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #badge h2 {
+      color: #F37021;
+      margin-bottom: 10px;
+    }
+    #badge img {
+      width: 180px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/logo.svg" alt="KBF: PLUS">
+    <h1>Kulturalna Mapa</h1>
+  </header>
+  
+  <div id="map"></div>
+  
+  <div id="badge">
+    <h2>Gratulacje! 🏆</h2>
+    <p>Zostałeś <b>Kulturalnym Odkrywcą</b>!</p>
+    <img src="assets/badge.png" alt="Odznaka Kulturalny Odkrywca">
+  </div>
+  
+  <script>
+    // 🔧 Edytowalne miejsca, pytania i odpowiedzi
+    const places = [
+      { coords: [50.0415, 19.9600], question: "Jak nazywa się muzeum sztuki współczesnej przy Fabryce Schindlera?", answer: "MOCAK" },
+      { coords: [50.0500, 19.9350], question: "Skrót dużego centrum kongresowego nad Wisłą?", answer: "ICE" },
+      { coords: [50.0647, 19.9466], question: "Teatr nazwany imieniem wielkiego poety, tuż obok Dworca Głównego?", answer: "TEATR SŁOWACKIEGO" },
+      { coords: [50.0540, 19.9366], question: "Na którym wzgórzu stoi zamek królewski?", answer: "WAWEL" },
+      { coords: [50.0850, 20.0350], question: "Znany teatr w Nowej Hucie?", answer: "TEATR LUDOWY" },
+      { coords: [50.0688, 19.9555], question: "Jak nazywa się miejsce przy ul. Rakowickiej, w którym KBF prezentuje projekty związane z designem?", answer: "APTEKA DESIGNU" },
+      { coords: [50.0617, 19.9373], question: "Który pałac na Rynku Głównym 20 w Krakowie jest obecnie siedzibą wydarzeń literackich i debat organizowanych przez KBF?", answer: "PAŁAC POTOCKICH" }
+    ];
+    
+    let solved = new Set();
+    
+    const map = L.map('map').setView([50.061, 19.937], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    
+    places.forEach((place, index) => {
+      const inputId = "answer-" + index;
+      const marker = L.marker(place.coords).addTo(map);
+      marker.bindPopup(
+        `<div class='quiz-popup'>
+          <b>Pytanie:</b><br>${place.question}<br>
+          <input type='text' id='${inputId}' placeholder='Twoja odpowiedź'><br>
+          <button onclick="checkAnswer(${index}, '${inputId}')">OK</button>
+        </div>`
+      );
+    });
+    
+    function checkAnswer(index, inputId) {
+      const place = places[index];
+      const input = document.getElementById(inputId);
+      if (input.value.trim().toUpperCase() === place.answer) {
+        alert(`✅ Dobrze!`);
+        solved.add(index);
+        if (solved.size === places.length) {
+          document.getElementById("badge").style.display = "block";
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+      } else {
+        alert("❌ Spróbuj ponownie!");
+      }
+    }
+  </script>
+</body>
+</html>
